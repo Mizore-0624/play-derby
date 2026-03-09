@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4458224883479911"
-     crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>🏇 クイズダービー</title>
@@ -588,6 +586,26 @@ body {
   font-weight: 900;
   font-family: 'Kaisei Decol', serif;
 }
+/* SLIDER */
+#coin-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: var(--gold);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(245,197,24,.5);
+}
+#coin-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: var(--gold);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(245,197,24,.5);
+}
 </style>
 </head>
 <body>
@@ -707,6 +725,11 @@ body {
             <div style="color:var(--text-dim);font-size:.85rem;margin-bottom:6px">
               選択中: <span id="sel-horse-name" style="color:var(--gold);font-weight:700"></span>
             </div>
+            <input type="range" id="coin-slider" min="0" max="5" value="0" 
+                   oninput="sliderChange(this.value)" 
+                   style="width:100%;height:8px;margin:12px 0;cursor:pointer;
+                          background:linear-gradient(to right,var(--gold) 0%,var(--border) 0%);
+                          border-radius:4px;outline:none;appearance:none;-webkit-appearance:none">
             <div class="coin-ctrl">
               <button class="c-btn" onclick="coinDelta(-1)">－</button>
               <div class="c-num" id="coin-num">0</div>
@@ -1108,6 +1131,7 @@ function buildBetPanel() {
 function selectHorse(h) {
   selHorse = h;
   buildBetPanel();
+  updateSlider();
 }
 
 function coinDelta(d) {
@@ -1121,8 +1145,39 @@ function coinDelta(d) {
   if (d > 0 && remain <= 0) return;
   if (nv > cur && nv - cur > remain) return;
   teamBets[selHorse] = nv;
+  updateSlider();
   buildBetPanel();
 }
+
+function sliderChange(val) {
+  if (selHorse < 0) return;
+  const v = parseInt(val);
+  const totalCoins = teamHoldings[curTeam];
+  const usedCoins = Object.values(teamBets).reduce((a, b) => a + b, 0);
+  const curBet = teamBets[selHorse] || 0;
+  const remain = totalCoins - usedCoins + curBet;
+  if (v > remain) {
+    teamBets[selHorse] = remain;
+  } else {
+    teamBets[selHorse] = v;
+  }
+  updateSlider();
+  buildBetPanel();
+}
+
+function updateSlider() {
+  const slider = document.getElementById('coin-slider');
+  if (!slider) return;
+  const totalCoins = teamHoldings[curTeam];
+  const usedCoins = Object.values(teamBets).reduce((a, b) => a + b, 0);
+  const curBet = teamBets[selHorse] || 0;
+  const remain = totalCoins - usedCoins + curBet;
+  slider.max = remain;
+  slider.value = curBet;
+  const percent = remain > 0 ? (curBet / remain) * 100 : 0;
+  slider.style.background = `linear-gradient(to right, var(--gold) ${percent}%, var(--border) ${percent}%)`;
+}
+
 
 function confirmTeam() {
   if (curTeam < 0) return;
