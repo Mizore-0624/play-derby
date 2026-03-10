@@ -1065,8 +1065,9 @@ function closeHelp() {
 
 function checkSavedSettings() {
   const saved = localStorage.getItem('derby-settings');
-  if (saved) {
-    document.getElementById('load-btn-row').style.display = 'block';
+  const loadBtn = document.getElementById('load-btn-row');
+  if (saved && loadBtn) {
+    loadBtn.style.display = 'block';
   }
 }
 
@@ -1076,10 +1077,15 @@ function loadSavedSettings() {
   
   try {
     const data = JSON.parse(saved);
-    document.getElementById('race-count').value = data.raceCount || 4;
-    document.getElementById('team-count').value = data.teamCount || 14;
-    document.getElementById('initial-coins').value = data.coinsEach || 5;
-    document.getElementById('race-time').value = data.raceSec || 60;
+    const raceCountEl = document.getElementById('race-count');
+    const teamCountEl = document.getElementById('team-count');
+    const initialCoinsEl = document.getElementById('initial-coins');
+    const raceTimeEl = document.getElementById('race-time');
+    
+    if (raceCountEl) raceCountEl.value = data.raceCount || 4;
+    if (teamCountEl) teamCountEl.value = data.teamCount || 14;
+    if (initialCoinsEl) initialCoinsEl.value = data.coinsEach || 5;
+    if (raceTimeEl) raceTimeEl.value = data.raceSec || 60;
     
     showSaveIndicator();
   } catch (e) {
@@ -1103,10 +1109,12 @@ function saveSettings() {
 
 function showSaveIndicator() {
   const indicator = document.getElementById('save-indicator');
-  indicator.style.display = 'inline-block';
-  setTimeout(() => {
-    indicator.style.display = 'none';
-  }, 2000);
+  if (indicator) {
+    indicator.style.display = 'inline-block';
+    setTimeout(() => {
+      indicator.style.display = 'none';
+    }, 2000);
+  }
 }
 
 // ページ読み込み時に保存済み設定をチェック
