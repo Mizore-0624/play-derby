@@ -98,6 +98,9 @@ body {
   font-weight: 700;
   cursor: pointer;
   transition: all .2s;
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
 }
 .btn-gold {
   background: var(--gold);
@@ -772,7 +775,12 @@ body {
       </div>
 
       <div class="btn-row" style="margin-top:24px">
-        <button class="btn btn-gold" onclick="closeHelp()">ゲームを始める</button>
+        <button class="btn btn-gold" 
+                onclick="closeHelp()" 
+                ontouchstart="closeHelp()"
+                style="pointer-events:auto;z-index:999;position:relative">
+          ゲームを始める
+        </button>
       </div>
     </div>
   </div>
@@ -1051,7 +1059,16 @@ let spaceDown = false;
 // ════════════════════════════
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const screen = document.getElementById(id);
+  if (screen) {
+    screen.classList.add('active');
+  }
+  
+  // 遊び方画面の時はヘルプボタンを非表示
+  const helpBtn = document.querySelector('.help-btn');
+  if (helpBtn) {
+    helpBtn.style.display = (id === 'scr-howto') ? 'none' : 'block';
+  }
 }
 
 function showHelp() {
